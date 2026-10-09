@@ -13,7 +13,7 @@ std::vector<student> studs;
 std::vector<std::string> groups;
 
 int searchingGr(const std::string& g){
-    for (int i = 0; i < studs.size(); i++){
+    for (int i = 0; i < groups.size(); i++){
         if (groups[i] == g){
             return i;
         }
@@ -31,16 +31,21 @@ void addGroup() {
 
 void delg(){
     std::string g;
-    std::cout<<"какую удалить ?";
+    std::cout << "какую удалить ? ";
     std::cin.ignore();
     std::getline(std::cin, g);
     int ind = searchingGr(g);
     if (ind == -1) {
-        std::cout << "такой группы нет\n";
+        std::cout << "такой группы нет, убили их\n";
         return;
     }
+    for (const auto& s : studs) {
+        if (s.Group == g) {
+            std::cout << "в группе есть студенты, удалить нельзя, грустно \n";
+            return;
+        }
+    }
     groups.erase(groups.begin() + ind);
-
 }
 
 void editgr (){
@@ -200,56 +205,57 @@ void stat() {
     std::cout << "Без оценок: " << idiot << "\n";
 }
 
-void delgroup() {
-    std::string group;
-    std::cout << "Группа для удаления: ";
-    std::cin >> group;
-
-    auto it = std::remove_if(studs.begin(), studs.end(),
-        [&](const student& s) { return s.Group == group; });
-
-    if (it == studs.end()) {
-        std::cout << "Такой группы нет\n";
-        return;
-    }
-    studs.erase(it, studs.end());
-}
 
 int main () {
     int answer = -1;
-    std::cout<<"1. добавление студента \n 2. изменение студента \n 3. удаление студента \n 4. добавление группы \n 5. изменение группы \n 6. удаление группы(не должно быть студентов) \n 7. средний балл студента \n 8. средний балл группы \n 9. добавление оценки \n 10. получение статистики по группе \n 0. выход \n";
-    while(answer != 0){
+    while (answer != 0) {
+        std::cout << "\n1. добавление студента\n2. изменение студента\n3. удаление студента\n"
+                  << "4. добавление группы\n5. изменение группы\n6. удаление группы (не должно быть студентов)\n"
+                  << "7. средний балл студента\n8. средний балл группы\n9. добавление оценки\n"
+                  << "10. статистика по группе\n0. выход\nВыбор: ";
+        std::cin >> answer;
+
         switch (answer) {
-        case '1':
-            addingStud;
-            break;
-        case '2':
-            edit();
-            break;
-        case '3':
-            delite();
-            break;
-        case '4':
-            addGroup();
-            break;
-        case '5':
-            editgr();
-            break;
-        case '6':
-            delgroup();
-            break;
-        case '7':
-            averstud;
-            break;
-        case '8':
-            groupaver;
-            break;
-        case '9':
-            addMark();
-            break;
-        case '10':
-            stat();
+        case 1:  addingStud(studs); break;
+        case 2:  edit();            break;
+        case 3:  delite();          break;
+        case 4:  addGroup();        break;
+        case 5:  editgr();          break;
+        case 6:  delg();            break;
+        case 7: {
+            std::string name;
+            std::cout << "Введите ФИО: ";
+            std::cin.ignore();
+            std::getline(std::cin, name);
+            int ind = searching(name);
+            if (ind == -1) {
+                std::cout << "нет такого студента\n";
+                break;
+            }
+            if (studs[ind].grades.empty()) {
+                std::cout << "у студента нет оценок\n";
+                break;
+            }
+            std::cout << "Средний балл: " << averstud(studs[ind]) << "\n";
             break;
         }
+        case 8: {
+            std::string g;
+            std::cout << "Введите группу: ";
+            std::cin.ignore();
+            std::getline(std::cin, g);
+            if (searchingGr(g) == -1) {
+                std::cout << "такой группы нет\n";
+                break;
+            }
+            std::cout << "Средний балл группы: " << groupaver(g) << "\n";
+            break;
+        }
+        case 9:  addMark();         break;
+        case 10: stat();            break;
+        case 0:  break;
+        default: std::cout << "нет такого пункта\n"; break;
+        }
     }
+    return 0;
 }
